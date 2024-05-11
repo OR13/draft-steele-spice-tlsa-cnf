@@ -121,7 +121,7 @@ A similar example of a CWT claimset, is provided in Extended Diagnostic Notation
   /exp/ 4 : 1361398824,
   /cnf/ 8 : {
     /COSE_Key/ 1 : h'deebd8afa...423da25ffff'
-    /ckt .../ 
+    /ckt .../
     /Encrypted_COSE_Key .../
   }
   ...
@@ -254,7 +254,7 @@ This step is not always required, because of the timing and availability issues 
 
 After verifying the presentation of a digital credential which included a confirmation claim, the verifier has confirmed the issuer's signature matches their public key, and that the subject's confirmation key is in their possession.
 
-Additional validation checks MUST be performed first, including reviewing the valid from and valid until related claims, and checking the 
+Additional validation checks MUST be performed first, including reviewing the valid from and valid until related claims, and checking the
 
 At this stage the verifier SHOULD perform the following additional actions:
 
@@ -287,7 +287,7 @@ This approach could be extended to other protocols, and is inspired by similar a
 
 # Privacy Considerations
 
-As noted in {{Section 5 of RFC7800}}, A proof-of-possession key can be used as a correlation handle if the same key is used with multiple parties.  
+As noted in {{Section 5 of RFC7800}}, A proof-of-possession key can be used as a correlation handle if the same key is used with multiple parties.
 Thus, for privacy reasons, it is recommended that different proof-of-possession keys be used when interacting with different parties.
 
 By publishing the confirmation key thumbprint, a domain operator is intentionaly enabling this type of correlation.
