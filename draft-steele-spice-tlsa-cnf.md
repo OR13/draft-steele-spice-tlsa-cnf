@@ -19,11 +19,11 @@
 # Change the file extension to match the format (.xml for XML, etc...)
 #
 ###
-title: "TODO - Your title"
-abbrev: "TODO - Abbreviation"
+title: "Domain based Credential Confirmation"
+abbrev: "TLSA-CNF"
 category: info
 
-docname: draft-todo-yourname-protocol-latest
+docname: draft-steele-spice-tlsa-cnf-latest
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
 number:
 date:
