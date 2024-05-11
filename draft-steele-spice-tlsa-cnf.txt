@@ -8,7 +8,7 @@ Intended status: Informational                               11 May 2024
 Expires: 12 November 2024
 
 
-                  Domain based Credential Confirmation
+                    Credential Confirmation with DNS
                    draft-steele-spice-tlsa-cnf-latest
 
 Abstract
@@ -78,6 +78,7 @@ Table of Contents
    1.  Introduction
    2.  Terminology
    3.  Confirmation Claim
+     3.1.  Key Binding
    4.  Confirmation Claim Record
    5.  Usage
      5.1.  Before Issuance
@@ -190,6 +191,19 @@ Table of Contents
    must be decrypted and then the process for JWK and COSE_Key is
    applied.
 
+3.1.  Key Binding
+
+   The confirmation claim can be used to establish key binding, as
+   described in [I-D.draft-ietf-oauth-sd-jwt-vc],
+   [I-D.draft-prorock-spice-cose-sd-cwt] and
+   [I-D.draft-barnes-mls-userinfo-vc].
+
+   Publishing a confirmation key associated with a subject, and using
+   globally unique identifiers to identify subjects has additional
+   impact on privacy and traceability.
+
+   See this document's privacy considerations for additional details.
+
 4.  Confirmation Claim Record
 
    This section describes the structure of the confirmation claim
@@ -293,6 +307,15 @@ Table of Contents
    In order to match the claimset confirmation method to the hash
    retrieved from the cnf record, the process described in Section 1
    MUST be followed.
+
+   TODO: Consider merkle root instead of single key thumbprint, confirm
+   multiple keys with a single record.
+
+   TODO: Consider BBS / accumulator alternatives to set membership with
+   merkle proofs.
+
+   TODO: Consider relationship to Key Transparency, Metadata &
+   Capability Discovery, Certificate Transparency.
 
 5.  Usage
 
@@ -485,10 +508,20 @@ Acknowledgments
    TODO acknowledge.
 
    Thanks to the authors of the following drafts:
-   [I-D.draft-vesco-vcauthtls-01],
-   [I-D.draft-carter-high-assurance-dids-with-dns],
-   [I-D.draft-latour-dns-and-digital-trust],
-   [I-D.draft-mayrhofer-did-dns]
+
+   *  [I-D.draft-vesco-vcauthtls-01]
+
+   *  [I-D.draft-carter-high-assurance-dids-with-dns]
+
+   *  [I-D.draft-latour-dns-and-digital-trust]
+
+   *  [I-D.draft-mayrhofer-did-dns]
+
+   *  [I-D.draft-barnes-mls-userinfo-vc]
+
+   *  [I-D.draft-ietf-oauth-sd-jwt-vc]
+
+   *  [I-D.draft-prorock-spice-cose-sd-cwt]
 
    --back
 
@@ -551,6 +584,13 @@ Informative References
               RFC 7942, DOI 10.17487/RFC7942, July 2016,
               <https://www.rfc-editor.org/info/rfc7942>.
 
+   [I-D.draft-barnes-mls-userinfo-vc]
+              Barnes, R. and S. Nandakumar, "UserInfo Verifiable
+              Credentials as MLS Credentials", Work in Progress,
+              Internet-Draft, draft-barnes-mls-userinfo-vc-00, 13 March
+              2023, <https://datatracker.ietf.org/doc/html/draft-barnes-
+              mls-userinfo-vc-00>.
+
    [I-D.draft-carter-high-assurance-dids-with-dns]
               Carter, J., Latour, J., Glaude, M., and T. Bouma, "High
               Assurance DIDs with DNS", Work in Progress, Internet-
@@ -573,6 +613,13 @@ Informative References
               April 2024, <https://datatracker.ietf.org/doc/html/draft-
               ietf-oauth-attestation-based-client-auth-02>.
 
+   [I-D.draft-ietf-oauth-sd-jwt-vc]
+              Terbu, O., Fett, D., and B. Campbell, "SD-JWT-based
+              Verifiable Credentials (SD-JWT VC)", Work in Progress,
+              Internet-Draft, draft-ietf-oauth-sd-jwt-vc-03, 4 March
+              2024, <https://datatracker.ietf.org/doc/html/draft-ietf-
+              oauth-sd-jwt-vc-03>.
+
    [I-D.draft-latour-dns-and-digital-trust]
               Carter, J., Latour, J., and M. Glaude, "Leveraging DNS in
               Digital Trust: Credential Exchanges and Trust Registries",
@@ -587,6 +634,13 @@ Informative References
               Progress, Internet-Draft, draft-mayrhofer-did-dns-05, 9
               June 2021, <https://datatracker.ietf.org/doc/html/draft-
               mayrhofer-did-dns-05>.
+
+   [I-D.draft-prorock-spice-cose-sd-cwt]
+              Prorock, M. and O. Steele, "Selective Disclosure CWTs (SD-
+              CWT)", Work in Progress, Internet-Draft, draft-prorock-
+              spice-cose-sd-cwt-00, 21 March 2024,
+              <https://datatracker.ietf.org/doc/html/draft-prorock-
+              spice-cose-sd-cwt-00>.
 
    [I-D.draft-vesco-vcauthtls-01]
               Vesco, A. and L. Perugini, "Transport Layer Security (TLS)
