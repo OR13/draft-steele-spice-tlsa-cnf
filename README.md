@@ -1,6 +1,6 @@
-# Domain based Credential Confirmation
+# Credential Confirmation with DNS
 
-This is the working area for the individual Internet-Draft, "Domain based Credential Confirmation".
+This is the working area for the individual Internet-Draft, "Credential Confirmation with DNS".
 
 * [Editor's Copy](https://OR13.github.io/draft-steele-spice-tlsa-cnf/#go.draft-steele-spice-tlsa-cnf.html)
 * [Datatracker Page](https://datatracker.ietf.org/doc/draft-steele-spice-tlsa-cnf)
