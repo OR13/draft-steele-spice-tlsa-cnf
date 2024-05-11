@@ -1,0 +1,614 @@
+
+
+
+
+Secure Patterns for Internet CrEdentials                       O. Steele
+Internet-Draft                                                 Transmute
+Intended status: Informational                               11 May 2024
+Expires: 12 November 2024
+
+
+                  Domain based Credential Confirmation
+                   draft-steele-spice-tlsa-cnf-latest
+
+Abstract
+
+   Digital Crededentials on the Internet often JSON Web Token (JWT) and
+   CBOR Web Token (CWT), which depends on third parties to certify the
+   keys used.  This document improves on that situation by enabling the
+   administrators of domain names to specify the keys used in that
+   domain's digital credentials.  This is accomplished by describing how
+   to discover thumbprints for proof-of-possession keys, as described in
+   RFC 7800 and RFC 8747, using TLSA Records as described in RFC 6698.
+   This approach can be leveraged to develop revocation and assurance
+   capabilities for digital credentials.
+
+About This Document
+
+   This note is to be removed before publishing as an RFC.
+
+   The latest revision of this draft can be found at
+   https://OR13.github.io/draft-steele-spice-tlsa-cnf/draft-steele-
+   spice-tlsa-cnf.html.  Status information for this document may be
+   found at https://datatracker.ietf.org/doc/draft-steele-spice-tlsa-
+   cnf/.
+
+   Discussion of this document takes place on the Secure Patterns for
+   Internet CrEdentials Working Group mailing list
+   (mailto:spice@ietf.org), which is archived at
+   https://mailarchive.ietf.org/arch/browse/spice/.  Subscribe at
+   https://www.ietf.org/mailman/listinfo/spice/.
+
+   Source for this draft and an issue tracker can be found at
+   https://github.com/OR13/draft-steele-spice-tlsa-cnf.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on 12 November 2024.
+
+Copyright Notice
+
+   Copyright (c) 2024 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents (https://trustee.ietf.org/
+   license-info) in effect on the date of publication of this document.
+   Please review these documents carefully, as they describe your rights
+   and restrictions with respect to this document.  Code Components
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
+
+Table of Contents
+
+   1.  Introduction
+   2.  Terminology
+   3.  Confirmation Claim
+   4.  Confirmation Claim Record
+   5.  Usage
+     5.1.  Before Issuance
+     5.2.  After Verification
+     5.3.  Revocation
+     5.4.  Assurance
+   6.  Privacy Considerations
+   7.  Security Considerations
+   8.  Internationalization Considerations
+   9.  IANA Considerations
+   10. Implementation Status
+     10.1.  Transmute Prototype
+   Acknowledgments
+   References
+     Normative References
+     Informative References
+   Author's Address
+
+1.  Introduction
+
+   JSON Web Token (JWT) and CBOR Web Token (CWT) based digital
+   credential formats can express claims made by an Issuer (iss) and a
+   Subject (sub).  The confirmation claim (cnf) can be used to bind
+   proof-of-possession keys to the Subject claim (sub), which can be a
+   string or URI.  In cases where the Subject is a URL, the JSON Web Key
+   Thumbprint (jkt) or COSE Key Thumbprint (ckt) can be published to the
+   Domain Name System (DNS).  This document describes how digital
+   credentials can leverage specifications developed to support Internet
+   X.509 Public Key Infrastructure Certificate (PKIX), Transport Layer
+   Security (TLS), DNS-Based Authentication of Named Entities (DANE), in
+   order to enable conceptually similar functionality, based on JSON
+   Object Signing and Encryption (JOSE) and CBOR Object Signing and
+   Encryption (COSE).
+
+2.  Terminology
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in
+   BCP 14 [RFC2119] [RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+   JWT is described in [RFC7519], CWT is described in [RFC8392].
+   Confirmation claim cnf is described in [RFC7800] and [RFC8747].  JWT,
+   CWT and CNF related claims such as iss, sub, and nonce are shared by
+   both token formats.  TLSA Resource Record and related terminology are
+   described in [RFC6698].
+
+   This document does not introduce new terminology.
+
+3.  Confirmation Claim
+
+   This section provides a summary of the confirmation claim and its
+   possible structures in JOSE and COSE, and does not alter or extend
+   the definition of cnf in [RFC7800] or [RFC8747].
+
+   The confirmation claim is an object or map, supporting one or more
+   confirmation methods.
+
+   The following informative example of a decoded JWT claimset is
+   provided:
+
+   {
+     "iss": "https://iss.example",
+     "sub": "https://jwt.vc",
+     "exp": 1361398824,
+     "cnf": {
+       "jwk":{
+         "kty": "EC",
+         "alg": "ES256",
+         "crv": "P-256",
+         "x": "18wHLeIgW9wVN6VD1Txgpqy2LszYkMf6J8njVAibvhM",
+         "y": "-V4dS4UaLMgP_4fY4j8ir7cl1TXlFdAgcx55o7TkcSA"
+       },
+       // "jkt": "NzbLs...",
+       // "kid": "urn:ietf:params:oauth:jwk-thumbprint:sha-256:NzbLs..."
+       // "x5t#S256": "bwcK0esc3ACC3DB2Y5_lESsXE8o..."
+       // "jwe": "eyJhbGciOiJSU0EtT0FFUCIsImVuYyI6IkExMjhDQkMtSF..."
+     },
+     // ...
+   }
+
+                    Figure 1: Confirmation claim in JOSE
+
+   A similar example of a CWT claimset, is provided in Extended
+   Diagnostic Notation (EDN), see [I-D.draft-ietf-cbor-edn-literals] for
+   more details.
+
+   {
+     /iss/ 1 : "coaps://iss.example",
+     /sub/ 2 : "coaps://jwt.vc",
+     /exp/ 4 : 1361398824,
+     /cnf/ 8 : {
+       /COSE_Key/ 1 : h'deebd8afa...423da25ffff'
+       /ckt .../
+       /Encrypted_COSE_Key .../
+     }
+     ...
+   }
+
+                    Figure 2: Confirmation claim in COSE
+
+   In order to be compatible with [RFC6698], the value of the
+   confirmation claim must be reducible to a hash in a verifiable way.
+
+   For JWK and COSE_Key, the hash is produced according to [RFC9278] and
+   [I-D.draft-ietf-cose-key-thumbprint] respectively.  For JKT and CKT,
+   the hash is already present, but must be converted to hexadecimal
+   before use in TLSA Records.  For JWE and Encrypted_COSE_Key, the key
+   must be decrypted and then the process for JWK and COSE_Key is
+   applied.
+
+4.  Confirmation Claim Record
+
+   This section describes the structure of the confirmation claim
+   record.
+
+   As described in [RFC6698], there are several components of a TLSA
+   record, including:
+
+   *  TLSA Certificate Usages
+
+   *  TLSA Selectors
+
+   *  TLSA Matching Types
+
+   Until the associated IANA registries contain an entry specific to
+   this draft, the value reserved for private use (255) MUST be used.
+
+   Similar to the process for deriving a prefxied DNS domain name as
+   described in Section 3 of [RFC6698], the structure of the
+   confirmation claim needs to be converted to a prefixed DNS domain
+   name.
+
+   In JOSE, the string claim names are used, but in COSE the integer
+   values are used.
+
+   For example:
+
+   The COSE credential claimset:
+
+   {
+     /iss/ 1 : "coaps://iss.example",
+     /sub/ 2 : "coaps://jwt.vc",
+     /cnf/ 8 : {
+       /COSE_Key/ 1 : h'deebd8afa...423da25ffff'
+     }
+     ...
+   }
+
+                      Figure 3: Example COSE Claimset
+
+   Produces the following prefixed DNS domain name:
+
+   1.8.jwt.vc
+
+   The following command can be run to retrieve the confirmation claim
+   record:
+
+   dig @pam.ns.cloudflare.com. 1.8.jwt.vc. TLSA
+
+                        Figure 4: Example cnf query
+
+   The following informative example of an answer is provided:
+
+   ;; ...
+   ;; ANSWER SECTION:
+   1.8.jwt.vc.    300  IN  TLSA  255 255 255 123533...66AAF8
+
+                     Figure 5: Example cnf query answer
+
+   The JOSE credential claimset:
+
+   {
+     "iss": "https://iss.example",
+     "sub": "https://jwt.vc",
+     "exp": 1361398824,
+     "cnf": {
+       "jwk":{
+         "kty": "EC",
+         "alg": "ES256",
+         "crv": "P-256",
+         "x": "18wHLeIgW9wVN6VD1Txgpqy2LszYkMf6J8njVAibvhM",
+         "y": "-V4dS4UaLMgP_4fY4j8ir7cl1TXlFdAgcx55o7TkcSA"
+       },
+     },
+   }
+
+                      Figure 6: Example JOSE Claimset
+
+   Produces the following prefixed DNS domain name:
+
+   jwk.cnf.jwt.vc
+
+   The following command can be run to retrieve the confirmation claim
+   record:
+
+   dig @pam.ns.cloudflare.com. jwk.cnf.jwt.vc. TLSA
+
+                        Figure 7: Example cnf query
+
+   The following informative example of an answer is provided:
+
+   ;; ...
+   ;; ANSWER SECTION:
+   jwk.cnf.jwt.vc.    300  IN  TLSA  255 255 255 12353...6AAF8
+
+                     Figure 8: Example cnf query answer
+
+   In both of the preceeding examples, the claimset contained a key, but
+   the tlsa cnf record contained a thumbprint.
+
+   In order to match the claimset confirmation method to the hash
+   retrieved from the cnf record, the process described in Section 1
+   MUST be followed.
+
+5.  Usage
+
+5.1.  Before Issuance
+
+   The issuer needs to first authenticate the subject, and establishing
+   that they control a confirmation key.
+
+   There are several established mechanisms which might be relevant to
+   this step, including [RFC9449] and
+   [I-D.draft-ietf-oauth-attestation-based-client-auth].
+
+   At this stage the issuer SHOULD perform the following additional
+   actions:
+
+   *  Resolve the subject's confirmation claim record as described in
+      Section 2
+
+   *  Confirm the record contains a thumbprint which matches
+      confirmation claim as described in Section 1
+
+   This step is not always required, because of the timing and
+   availability issues associated with setting the confirmation claim
+   record.
+
+5.2.  After Verification
+
+   After verifying the presentation of a digital credential which
+   included a confirmation claim, the verifier has confirmed the
+   issuer's signature matches their public key, and that the subject's
+   confirmation key is in their possession.
+
+   Additional validation checks MUST be performed first, including
+   reviewing the valid from and valid until related claims, and checking
+   the
+
+   At this stage the verifier SHOULD perform the following additional
+   actions:
+
+   *  Convert the verified claim set to the confirmation claim record,
+      and resolve it as described in Section 2.
+
+   *  Verify that the confirmation claim record contains a hash that
+      matches the confirmation claim in the credential as described in
+      Section 1.
+
+5.3.  Revocation
+
+   This section builds on the After Verification process described
+   above, and applies it to the concrete use case of Subject initiated
+   credential revocation.
+
+   In the event that a device or service controlling the proof-of-
+   possession key for a credential is stolen or compromised, the subject
+   can revoke the confirmation claim the issuer commited to, by
+   deleteing the associated confirmation record.
+
+   After deleting the record, the subject can contact the issuer and
+   obtain a fresh credential with a new confirmation key, and add a new
+   confirmation record to their domain name.
+
+   Due to the timeing and availability constraints of the DNS, verifiers
+   can still be deceived by presentations of the stolen credential.
+
+   The utility of this subject directed revocation depends on the
+   responsiveness and realtime revocation capabilities of the issuer.
+
+   For example, if an issuer could revoke the credential in 5 minutes,
+   and the DNS takes 30 minutes to update, the issuer should be
+   contacted to revoke the credential first.
+
+   However, if the issuer can only revoke credentials in a 24 hour
+   window, and the DNS takes 30 minutes to propagate the subject's
+   revocation of the credential, the subject should revoke the
+   credential first, and then contact the issuer.
+
+5.4.  Assurance
+
+   This section builds on the Before Isssunace process described above,
+   and applies it to the concrete use case of providing the issuer with
+   increased assurance that a subject identified with a URL and
+   presenting a given public key, controls the associated domain, and
+   the associated private key.
+
+   In this case, the DNS enables the subject to publish and unpublish
+   the thumbprint of the public key they wish to use for digital
+   credentials on the associated domain.
+
+   This approach could be extended to other protocols, and is inspired
+   by similar approaches to demonstrating control of resources or
+   proving possession for example Automated Certificate Management
+   Environment (acme) and DNS-Based Authentication of Named Entities
+   (DANE).
+
+6.  Privacy Considerations
+
+   As noted in Section 5 of [RFC7800], A proof-of-possession key can be
+   used as a correlation handle if the same key is used with multiple
+   parties.  Thus, for privacy reasons, it is recommended that different
+   proof-of-possession keys be used when interacting with different
+   parties.
+
+   By publishing the confirmation key thumbprint, a domain operator is
+   intentionaly enabling this type of correlation.
+
+   Resolving confirmation key thumbprints at the time of verification
+   reveals timing information related to credential processing.
+
+   TODO: additional privacy considerations.
+
+7.  Security Considerations
+
+   The security considerations of [RFC7519], [RFC8392], [RFC7800],
+   [RFC8747], and [RFC6698] apply.
+
+   After verification of a credential which includes a confirmation
+   claim or a key binding token, it is essential that the verifier
+   confirm the key is still published under the domain associated with
+   the subject.  Prior to the issuance or digital credentials it is
+   essential that the issuer obtain proof that the subject of the
+   credential controls the associated proof of possession key.
+
+   TODO: additional security considerations.
+
+8.  Internationalization Considerations
+
+   This specification is not limited to URLs that rely on HTTPS.
+
+   Considerations for international domain names in [UTS46] and
+   [RFC5895] both apply.
+
+   For example: ☕.example becomes xn--53h.example when converting from a
+   subject identifier to a TLSA record.
+
+   TODO: additional i18n considerations.
+
+9.  IANA Considerations
+
+   This document has no IANA actions.
+
+10.  Implementation Status
+
+   Note to RFC Editor: Please remove this section as well as references
+   to [BCP205] before AUTH48, and then find replace "jwt.vc" with
+   "vendor.example".
+
+   This section records the status of known implementations of the
+   protocol defined by this specification at the time of posting of this
+   Internet-Draft, and is based on a proposal described in [BCP205].
+   The description of implementations in this section is intended to
+   assist the IETF in its decision processes in progressing drafts to
+   RFCs.  Please note that the listing of any individual implementation
+   here does not imply endorsement by the IETF.  Furthermore, no effort
+   has been spent to verify the information presented here that was
+   supplied by IETF contributors.  This is not intended as, and must not
+   be construed to be, a catalog of available implementations or their
+   features.  Readers are advised to note that other implementations may
+   exist.
+
+   According to [BCP205], "this will allow reviewers and working groups
+   to assign due consideration to documents that have the benefit of
+   running code, which may serve as evidence of valuable experimentation
+   and feedback that have made the implemented protocols more mature.
+   It is up to the individual working groups to use this information as
+   they see fit".
+
+10.1.  Transmute Prototype
+
+   Organization: Transmute Industries Inc
+
+   Name: https://github.com/transmute-industries/jwt.vc
+
+   Description: An application demonstrating the concepts is available
+   at https://jwt.vc (https://jwt.vc)
+
+   Maturity: Prototype
+
+   Coverage: The current version ('main') implements a post verification
+   check similar to the one described in this document.
+
+   License: Apache-2.0
+
+   Implementation Experience: No interop testing has been done yet.  The
+   code works as proof of concept, but is not yet production ready.
+
+   Contact: Orie Steele (orie@transmute.industries)
+
+Acknowledgments
+
+   TODO acknowledge.
+
+   Thanks to the authors of the following drafts:
+   [I-D.draft-vesco-vcauthtls-01],
+   [I-D.draft-carter-high-assurance-dids-with-dns],
+   [I-D.draft-latour-dns-and-digital-trust],
+   [I-D.draft-mayrhofer-did-dns]
+
+   --back
+
+References
+
+Normative References
+
+   [I-D.draft-ietf-cose-key-thumbprint]
+              Isobe, K., Tschofenig, H., and O. Steele, "CBOR Object
+              Signing and Encryption (COSE) Key Thumbprint", Work in
+              Progress, Internet-Draft, draft-ietf-cose-key-thumbprint-
+              04, 23 October 2023,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-cose-
+              key-thumbprint-04>.
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC6698]  Hoffman, P. and J. Schlyter, "The DNS-Based Authentication
+              of Named Entities (DANE) Transport Layer Security (TLS)
+              Protocol: TLSA", RFC 6698, DOI 10.17487/RFC6698, August
+              2012, <https://www.rfc-editor.org/rfc/rfc6698>.
+
+   [RFC7519]  Jones, M., Bradley, J., and N. Sakimura, "JSON Web Token
+              (JWT)", RFC 7519, DOI 10.17487/RFC7519, May 2015,
+              <https://www.rfc-editor.org/rfc/rfc7519>.
+
+   [RFC7800]  Jones, M., Bradley, J., and H. Tschofenig, "Proof-of-
+              Possession Key Semantics for JSON Web Tokens (JWTs)",
+              RFC 7800, DOI 10.17487/RFC7800, April 2016,
+              <https://www.rfc-editor.org/rfc/rfc7800>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/rfc/rfc8174>.
+
+   [RFC8392]  Jones, M., Wahlstroem, E., Erdtman, S., and H. Tschofenig,
+              "CBOR Web Token (CWT)", RFC 8392, DOI 10.17487/RFC8392,
+              May 2018, <https://www.rfc-editor.org/rfc/rfc8392>.
+
+   [RFC8747]  Jones, M., Seitz, L., Selander, G., Erdtman, S., and H.
+              Tschofenig, "Proof-of-Possession Key Semantics for CBOR
+              Web Tokens (CWTs)", RFC 8747, DOI 10.17487/RFC8747, March
+              2020, <https://www.rfc-editor.org/rfc/rfc8747>.
+
+   [RFC9278]  Jones, M. and K. Yasuda, "JWK Thumbprint URI", RFC 9278,
+              DOI 10.17487/RFC9278, August 2022,
+              <https://www.rfc-editor.org/rfc/rfc9278>.
+
+Informative References
+
+   [BCP205]   Best Current Practice 205,
+              <https://www.rfc-editor.org/info/bcp205>.
+              At the time of writing, this BCP comprises the following:
+
+              Sheffer, Y. and A. Farrel, "Improving Awareness of Running
+              Code: The Implementation Status Section", BCP 205,
+              RFC 7942, DOI 10.17487/RFC7942, July 2016,
+              <https://www.rfc-editor.org/info/rfc7942>.
+
+   [I-D.draft-carter-high-assurance-dids-with-dns]
+              Carter, J., Latour, J., Glaude, M., and T. Bouma, "High
+              Assurance DIDs with DNS", Work in Progress, Internet-
+              Draft, draft-carter-high-assurance-dids-with-dns-03, 9
+              April 2024, <https://datatracker.ietf.org/doc/html/draft-
+              carter-high-assurance-dids-with-dns-03>.
+
+   [I-D.draft-ietf-cbor-edn-literals]
+              Bormann, C., "CBOR Extended Diagnostic Notation (EDN):
+              Application-Oriented Literals, ABNF, and Media Type", Work
+              in Progress, Internet-Draft, draft-ietf-cbor-edn-literals-
+              08, 1 February 2024,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-cbor-
+              edn-literals-08>.
+
+   [I-D.draft-ietf-oauth-attestation-based-client-auth]
+              Looker, T. and P. Bastian, "OAuth 2.0 Attestation-Based
+              Client Authentication", Work in Progress, Internet-Draft,
+              draft-ietf-oauth-attestation-based-client-auth-02, 21
+              April 2024, <https://datatracker.ietf.org/doc/html/draft-
+              ietf-oauth-attestation-based-client-auth-02>.
+
+   [I-D.draft-latour-dns-and-digital-trust]
+              Carter, J., Latour, J., and M. Glaude, "Leveraging DNS in
+              Digital Trust: Credential Exchanges and Trust Registries",
+              Work in Progress, Internet-Draft, draft-latour-dns-and-
+              digital-trust-02, 11 April 2024,
+              <https://datatracker.ietf.org/doc/html/draft-latour-dns-
+              and-digital-trust-02>.
+
+   [I-D.draft-mayrhofer-did-dns]
+              Mayrhofer, A., Klesev, D., and M. Sabadello, "The
+              Decentralized Identifier (DID) in the DNS", Work in
+              Progress, Internet-Draft, draft-mayrhofer-did-dns-05, 9
+              June 2021, <https://datatracker.ietf.org/doc/html/draft-
+              mayrhofer-did-dns-05>.
+
+   [I-D.draft-vesco-vcauthtls-01]
+              Vesco, A. and L. Perugini, "Transport Layer Security (TLS)
+              Authentication with Verifiable Credential (VC)", Work in
+              Progress, Internet-Draft, draft-vesco-vcauthtls-01, 16
+              February 2024, <https://datatracker.ietf.org/doc/html/
+              draft-vesco-vcauthtls-01>.
+
+   [RFC5895]  Resnick, P. and P. Hoffman, "Mapping Characters for
+              Internationalized Domain Names in Applications (IDNA)
+              2008", RFC 5895, DOI 10.17487/RFC5895, September 2010,
+              <https://www.rfc-editor.org/rfc/rfc5895>.
+
+   [RFC9449]  Fett, D., Campbell, B., Bradley, J., Lodderstedt, T.,
+              Jones, M., and D. Waite, "OAuth 2.0 Demonstrating Proof of
+              Possession (DPoP)", RFC 9449, DOI 10.17487/RFC9449,
+              September 2023, <https://www.rfc-editor.org/rfc/rfc9449>.
+
+   [UTS46]    "UTS46", n.d., <https://www.unicode.org/reports/tr46/>.
+
+Author's Address
+
+   Orie Steele
+   Transmute
+   Email: orie@transmute.industries
