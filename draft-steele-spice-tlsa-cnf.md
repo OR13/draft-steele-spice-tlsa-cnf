@@ -40,6 +40,7 @@ normative:
   I-D.draft-ietf-cose-key-thumbprint: CKT
 
 informative:
+  BCP205:
   RFC5895: IDNA2008
   RFC9449: DPoP
   I-D.draft-ietf-oauth-attestation-based-client-auth: OAuth-Attestation-Based-Client-Authentication
@@ -49,7 +50,7 @@ informative:
   I-D.draft-latour-dns-and-digital-trust: DIDS-TRUST-REGISTRIES
   I-D.draft-mayrhofer-did-dns: DID-DNS
 
-  UTS-46:
+  UTS46:
     title: UTS46
     target: https://www.unicode.org/reports/tr46/
 
@@ -74,16 +75,16 @@ This document describes how digital credentials can leverage specifications deve
 
 {::boilerplate bcp14-tagged}
 
-JWT is described in {{JWT}}, CWT is described in {{CWT}}.
-Confirmation claim `cnf` is described in {{JWT-CNF}} and {{CWT-CNF}}.
+JWT is described in {{-JWT}}, CWT is described in {{-CWT}}.
+Confirmation claim `cnf` is described in {{-JWT-CNF}} and {{-CWT-CNF}}.
 JWT, CWT and CNF related claims such as `iss`, `sub`, and `nonce` are shared by both token formats.
-TLSA Resource Record and related terminology are described in {{DANE}}.
+TLSA Resource Record and related terminology are described in {{-DANE}}.
 
 This document does not introduce new terminology.
 
-## Confirmation Claim
+# Confirmation Claim
 
-This section provides a summary of the confirmation claim and its possible structures in JOSE and COSE, and does not alter or extend the definition of `cnf` in {{JWT-CNF}} or {{CWT-CNF}}.
+This section provides a summary of the confirmation claim and its possible structures in JOSE and COSE, and does not alter or extend the definition of `cnf` in {{-JWT-CNF}} or {{-CWT-CNF}}.
 
 The confirmation claim is an object or map, supporting one or more confirmation methods.
 
@@ -112,7 +113,7 @@ The following informative example of a decoded JWT claimset is provided:
 ~~~
 {: #fig-jose-cnf-example-1 title="Confirmation claim in JOSE"}
 
-A similar example of a CWT claimset, is provided in Extended Diagnostic Notation (EDN), see {{EDN}} for more details.
+A similar example of a CWT claimset, is provided in Extended Diagnostic Notation (EDN), see {{-EDN}} for more details.
 
 ~~~ cbor-diag
 {
@@ -129,17 +130,17 @@ A similar example of a CWT claimset, is provided in Extended Diagnostic Notation
 ~~~
 {: #fig-cose-cnf-example-1 title="Confirmation claim in COSE"}
 
-In order to be compatible with {{DANE}}, the value of the confirmation claim must be reducible to a hash in a verifiable way.
+In order to be compatible with {{-DANE}}, the value of the confirmation claim must be reducible to a hash in a verifiable way.
 
-For JWK and COSE_Key, the hash is produced according to {{JKT}} and {{CKT}} respectively.
+For JWK and COSE_Key, the hash is produced according to {{-JKT}} and {{-CKT}} respectively.
 For JKT and CKT, the hash is already present, but must be converted to hexadecimal before use in TLSA Records.
 For JWE and Encrypted_COSE_Key, the key must be decrypted and then the process for JWK and COSE_Key is applied.
 
-## Confirmation Claim Record
+# Confirmation Claim Record
 
 This section describes the structure of the confirmation claim record.
 
-As described in {{DANE}}, there are several components of a TLSA record, including:
+As described in {{-DANE}}, there are several components of a TLSA record, including:
 
 - TLSA Certificate Usages
 - TLSA Selectors
@@ -185,7 +186,7 @@ The following informative example of an answer is provided:
 ~~~
 ;; ...
 ;; ANSWER SECTION:
-1.8.jwt.vc.		300	IN	TLSA	255 255 255 1235335BD15B2C75F3E84F4C681D85CBC059C00D7910D1BAD0690A2A F566AAF8
+1.8.jwt.vc.    300  IN  TLSA  255 255 255 123533...66AAF8
 ~~~
 {: #fig-cose-tlsa-cnf-example-1-answer title="Example cnf query answer"}
 
@@ -227,7 +228,7 @@ The following informative example of an answer is provided:
 ~~~
 ;; ...
 ;; ANSWER SECTION:
-jwk.cnf.jwt.vc.		300	IN	TLSA	255 255 255 1235335BD15B2C75F3E84F4C681D85CBC059C00D7910D1BAD0690A2A F566AAF8
+jwk.cnf.jwt.vc.    300  IN  TLSA  255 255 255 12353...6AAF8
 ~~~
 {: #fig-jose-tlsa-cnf-example-1-answer title="Example cnf query answer"}
 
@@ -235,13 +236,13 @@ In both of the preceeding examples, the claimset contained a key, but the tlsa c
 
 In order to match the claimset confirmation method to the hash retrieved from the cnf record, the process described in Section 1 MUST be followed.
 
-## Usage
+# Usage
 
-### Before Issuance
+## Before Issuance
 
 The issuer needs to first authenticate the subject, and establishing that they control a confirmation key.
 
-There are several established mechanisms which might be relevant to this step, including {{DPoP}} and {{OAuth-Attestation-Based-Client-Authentication}}.
+There are several established mechanisms which might be relevant to this step, including {{-DPoP}} and {{-OAuth-Attestation-Based-Client-Authentication}}.
 
 At this stage the issuer SHOULD perform the following additional actions:
 
@@ -250,7 +251,7 @@ At this stage the issuer SHOULD perform the following additional actions:
 
 This step is not always required, because of the timing and availability issues associated with setting the confirmation claim record.
 
-### After Verification
+## After Verification
 
 After verifying the presentation of a digital credential which included a confirmation claim, the verifier has confirmed the issuer's signature matches their public key, and that the subject's confirmation key is in their possession.
 
@@ -261,7 +262,7 @@ At this stage the verifier SHOULD perform the following additional actions:
 - Convert the verified claim set to the confirmation claim record, and resolve it as described in Section 2.
 - Verify that the confirmation claim record contains a hash that matches the confirmation claim in the credential as described in Section 1.
 
-### Revocation
+## Revocation
 
 This section builds on the After Verification process described above, and applies it to the concrete use case of Subject initiated credential revocation.
 
@@ -277,7 +278,7 @@ For example, if an issuer could revoke the credential in 5 minutes, and the DNS 
 
 However, if the issuer can only revoke credentials in a 24 hour window, and the DNS takes 30 minutes to propagate the subject's revocation of the credential, the subject should revoke the credential first, and then contact the issuer.
 
-### Assurance
+## Assurance
 
 This section builds on the Before Isssunace process described above, and applies it to the concrete use case of providing the issuer with increased assurance that a subject identified with a URL and presenting a given public key, controls the associated domain, and the associated private key.
 
@@ -298,7 +299,7 @@ TODO: additional privacy considerations.
 
 # Security Considerations
 
-The security considerations of {{JWT}}, {{CWT}}, {{JWT-CNF}}, {{CWT-CNF}}, and {{DANE}} apply.
+The security considerations of {{-JWT}}, {{-CWT}}, {{-JWT-CNF}}, {{-CWT-CNF}}, and {{-DANE}} apply.
 
 After verification of a credential which includes a confirmation claim or a key binding token, it is essential that the verifier confirm the key is still published under the domain associated with the subject.
 Prior to the issuance or digital credentials it is essential that the issuer obtain proof that the subject of the credential controls the associated proof of possession key.
@@ -309,7 +310,7 @@ TODO: additional security considerations.
 
 This specification is not limited to URLs that rely on HTTPS.
 
-Considerations for international domain names in {{-UTS-46}} and {{IDNA2008}} both apply.
+Considerations for international domain names in {{UTS46}} and {{-IDNA2008}} both apply.
 
 For example: ☕.example becomes xn--53h.example when converting from a subject identifier to a TLSA record.
 
@@ -319,19 +320,6 @@ TODO: additional i18n considerations.
 
 This document has no IANA actions.
 
---- back
-
-# Acknowledgments
-{:numbered="false"}
-
-TODO acknowledge.
-
-Thanks to the authors of the following drafts:
-
-- {{-VC-AUTH-TLS}}
-- {{-DIDS-WITH-DNS}}
-- {{-DIDS-TRUST-REGISTRIES}}
-- {{-DID-DNS}}
 
 # Implementation Status
 
@@ -364,3 +352,14 @@ License: Apache-2.0
 Implementation Experience: No interop testing has been done yet. The code works as proof of concept, but is not yet production ready.
 
 Contact: Orie Steele (orie@transmute.industries)
+
+
+
+# Acknowledgments
+{:numbered="false"}
+
+TODO acknowledge.
+
+Thanks to the authors of the following drafts: {{-VC-AUTH-TLS}}, {{-DIDS-WITH-DNS}}, {{-DIDS-TRUST-REGISTRIES}}, {{-DID-DNS}}
+
+--back
