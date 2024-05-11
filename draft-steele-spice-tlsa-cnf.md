@@ -1,6 +1,5 @@
 ---
-title: "Domain based Credential Confirmation"
-abbrev: "TLSA-CNF"
+title: "Credential Confirmation with DNS"
 category: info
 
 docname: draft-steele-spice-tlsa-cnf-latest
@@ -49,6 +48,9 @@ informative:
   I-D.draft-carter-high-assurance-dids-with-dns: DIDS-WITH-DNS
   I-D.draft-latour-dns-and-digital-trust: DIDS-TRUST-REGISTRIES
   I-D.draft-mayrhofer-did-dns: DID-DNS
+  I-D.draft-barnes-mls-userinfo-vc: USERINFO-VC
+  I-D.draft-ietf-oauth-sd-jwt-vc: SD-JWT-VC
+  I-D.draft-prorock-spice-cose-sd-cwt: SD-CWT
 
   UTS46:
     title: UTS46
@@ -135,6 +137,14 @@ In order to be compatible with {{-DANE}}, the value of the confirmation claim mu
 For JWK and COSE_Key, the hash is produced according to {{-JKT}} and {{-CKT}} respectively.
 For JKT and CKT, the hash is already present, but must be converted to hexadecimal before use in TLSA Records.
 For JWE and Encrypted_COSE_Key, the key must be decrypted and then the process for JWK and COSE_Key is applied.
+
+## Key Binding
+
+The confirmation claim can be used to establish key binding, as described in {{-SD-JWT-VC}}, {{-SD-CWT}} and {{-USERINFO-VC}}.
+
+Publishing a confirmation key associated with a subject, and using globally unique identifiers to identify subjects has additional impact on privacy and traceability.
+
+See this document's privacy considerations for additional details.
 
 # Confirmation Claim Record
 
@@ -235,6 +245,12 @@ jwk.cnf.jwt.vc.    300  IN  TLSA  255 255 255 12353...6AAF8
 In both of the preceeding examples, the claimset contained a key, but the tlsa cnf record contained a thumbprint.
 
 In order to match the claimset confirmation method to the hash retrieved from the cnf record, the process described in Section 1 MUST be followed.
+
+TODO: Consider merkle root instead of single key thumbprint, confirm multiple keys with a single record.
+
+TODO: Consider BBS / accumulator alternatives to set membership with merkle proofs.
+
+TODO: Consider relationship to Key Transparency, Metadata & Capability Discovery, Certificate Transparency.
 
 # Usage
 
@@ -353,13 +369,19 @@ Implementation Experience: No interop testing has been done yet. The code works 
 
 Contact: Orie Steele (orie@transmute.industries)
 
-
-
 # Acknowledgments
 {:numbered="false"}
 
 TODO acknowledge.
 
-Thanks to the authors of the following drafts: {{-VC-AUTH-TLS}}, {{-DIDS-WITH-DNS}}, {{-DIDS-TRUST-REGISTRIES}}, {{-DID-DNS}}
+Thanks to the authors of the following drafts:
+
+- {{-VC-AUTH-TLS}}
+- {{-DIDS-WITH-DNS}}
+- {{-DIDS-TRUST-REGISTRIES}}
+- {{-DID-DNS}}
+- {{-USERINFO-VC}}
+- {{-SD-JWT-VC}}
+- {{-SD-CWT}}
 
 --back
