@@ -95,7 +95,7 @@ The following informative example of a decoded JWT claimset is provided:
 ~~~ json5
 {
   "iss": "https://iss.example",
-  "sub": "https://jwt.vc",
+  "sub": "https://vendor.example",
   "exp": 1361398824,
   "cnf": {
     "jwk":{
@@ -120,7 +120,7 @@ A similar example of a CWT claimset, is provided in Extended Diagnostic Notation
 ~~~ cbor-diag
 {
   /iss/ 1 : "coaps://iss.example",
-  /sub/ 2 : "coaps://jwt.vc",
+  /sub/ 2 : "coaps://vendor.example",
   /exp/ 4 : 1361398824,
   /cnf/ 8 : {
     /COSE_Key/ 1 : h'deebd8afa...423da25ffff'
@@ -169,7 +169,7 @@ The COSE credential claimset:
 ~~~ cbor-diag
 {
   /iss/ 1 : "coaps://iss.example",
-  /sub/ 2 : "coaps://jwt.vc",
+  /sub/ 2 : "coaps://vendor.example",
   /cnf/ 8 : {
     /COSE_Key/ 1 : h'deebd8afa...423da25ffff'
   }
@@ -181,13 +181,13 @@ The COSE credential claimset:
 Produces the following prefixed DNS domain name:
 
 ~~~
-1.8.jwt.vc
+_1_8.vendor.example
 ~~~
 
 The following command can be run to retrieve the confirmation claim record:
 
 ~~~
-dig @pam.ns.cloudflare.com. 1.8.jwt.vc. TLSA
+dig @pam.ns.cloudflare.com. _1_8.vendor.example. TLSA
 ~~~
 {: #fig-cose-tlsa-cnf-example-1-query title="Example cnf query"}
 
@@ -196,7 +196,7 @@ The following informative example of an answer is provided:
 ~~~
 ;; ...
 ;; ANSWER SECTION:
-1.8.jwt.vc.    300  IN  TLSA  255 255 255 123533...66AAF8
+_1_8.vendor.example.    300  IN  TLSA  255 255 255 123533...66AAF8
 ~~~
 {: #fig-cose-tlsa-cnf-example-1-answer title="Example cnf query answer"}
 
@@ -205,7 +205,7 @@ The JOSE credential claimset:
 ~~~ json5
 {
   "iss": "https://iss.example",
-  "sub": "https://jwt.vc",
+  "sub": "https://vendor.example",
   "exp": 1361398824,
   "cnf": {
     "jwk":{
@@ -223,13 +223,13 @@ The JOSE credential claimset:
 Produces the following prefixed DNS domain name:
 
 ~~~
-jwk.cnf.jwt.vc
+_jwk_cnf.vendor.example
 ~~~
 
 The following command can be run to retrieve the confirmation claim record:
 
 ~~~
-dig @pam.ns.cloudflare.com. jwk.cnf.jwt.vc. TLSA
+dig @pam.ns.cloudflare.com. _jwk_cnf.vendor.example. TLSA
 ~~~
 {: #fig-jose-tlsa-cnf-example-1-query title="Example cnf query"}
 
@@ -238,7 +238,7 @@ The following informative example of an answer is provided:
 ~~~
 ;; ...
 ;; ANSWER SECTION:
-jwk.cnf.jwt.vc.    300  IN  TLSA  255 255 255 12353...6AAF8
+_jwk_cnf.vendor.example.    300  IN  TLSA  255 255 255 12353...6AAF8
 ~~~
 {: #fig-jose-tlsa-cnf-example-1-answer title="Example cnf query answer"}
 
@@ -339,7 +339,7 @@ This document has no IANA actions.
 
 # Implementation Status
 
-Note to RFC Editor: Please remove this section as well as references to {{BCP205}} before AUTH48, and then find replace "jwt.vc" with "vendor.example".
+Note to RFC Editor: Please remove this section as well as references to {{BCP205}} before AUTH48.
 
 This section records the status of known implementations of the protocol defined by this specification at the time of posting of this Internet-Draft, and is based on a proposal described in {{BCP205}}.
 The description of implementations in this section is intended to assist the IETF in its decision processes in progressing drafts to RFCs.
