@@ -4,8 +4,8 @@
 
 Secure Patterns for Internet CrEdentials                       O. Steele
 Internet-Draft                                                 Transmute
-Intended status: Informational                               11 May 2024
-Expires: 12 November 2024
+Intended status: Informational                               13 May 2024
+Expires: 14 November 2024
 
 
                     Credential Confirmation with DNS
@@ -57,7 +57,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 12 November 2024.
+   This Internet-Draft will expire on 14 November 2024.
 
 Copyright Notice
 
@@ -143,7 +143,7 @@ Table of Contents
 
    {
      "iss": "https://iss.example",
-     "sub": "https://jwt.vc",
+     "sub": "https://vendor.example",
      "exp": 1361398824,
      "cnf": {
        "jwk":{
@@ -169,7 +169,7 @@ Table of Contents
 
    {
      /iss/ 1 : "coaps://iss.example",
-     /sub/ 2 : "coaps://jwt.vc",
+     /sub/ 2 : "coaps://vendor.example",
      /exp/ 4 : 1361398824,
      /cnf/ 8 : {
        /COSE_Key/ 1 : h'deebd8afa...423da25ffff'
@@ -235,7 +235,7 @@ Table of Contents
 
    {
      /iss/ 1 : "coaps://iss.example",
-     /sub/ 2 : "coaps://jwt.vc",
+     /sub/ 2 : "coaps://vendor.example",
      /cnf/ 8 : {
        /COSE_Key/ 1 : h'deebd8afa...423da25ffff'
      }
@@ -246,12 +246,12 @@ Table of Contents
 
    Produces the following prefixed DNS domain name:
 
-   1.8.jwt.vc
+   _1_8.vendor.example
 
    The following command can be run to retrieve the confirmation claim
    record:
 
-   dig @pam.ns.cloudflare.com. 1.8.jwt.vc. TLSA
+   dig @pam.ns.cloudflare.com. _1_8.vendor.example. TLSA
 
                         Figure 4: Example cnf query
 
@@ -259,7 +259,7 @@ Table of Contents
 
    ;; ...
    ;; ANSWER SECTION:
-   1.8.jwt.vc.    300  IN  TLSA  255 255 255 123533...66AAF8
+   _1_8.vendor.example.    300  IN  TLSA  255 255 255 123533...66AAF8
 
                      Figure 5: Example cnf query answer
 
@@ -267,7 +267,7 @@ Table of Contents
 
    {
      "iss": "https://iss.example",
-     "sub": "https://jwt.vc",
+     "sub": "https://vendor.example",
      "exp": 1361398824,
      "cnf": {
        "jwk":{
@@ -284,12 +284,12 @@ Table of Contents
 
    Produces the following prefixed DNS domain name:
 
-   jwk.cnf.jwt.vc
+   _jwk_cnf.vendor.example
 
    The following command can be run to retrieve the confirmation claim
    record:
 
-   dig @pam.ns.cloudflare.com. jwk.cnf.jwt.vc. TLSA
+   dig @pam.ns.cloudflare.com. _jwk_cnf.vendor.example. TLSA
 
                         Figure 7: Example cnf query
 
@@ -297,7 +297,7 @@ Table of Contents
 
    ;; ...
    ;; ANSWER SECTION:
-   jwk.cnf.jwt.vc.    300  IN  TLSA  255 255 255 12353...6AAF8
+   _jwk_cnf.vendor.example.    300  IN  TLSA  255 255 255 12353...6AAF8
 
                      Figure 8: Example cnf query answer
 
@@ -459,8 +459,7 @@ Table of Contents
 10.  Implementation Status
 
    Note to RFC Editor: Please remove this section as well as references
-   to [BCP205] before AUTH48, and then find replace "jwt.vc" with
-   "vendor.example".
+   to [BCP205] before AUTH48.
 
    This section records the status of known implementations of the
    protocol defined by this specification at the time of posting of this

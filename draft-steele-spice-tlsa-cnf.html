@@ -1035,7 +1035,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Steele</td>
-<td class="center">Expires 12 November 2024</td>
+<td class="center">Expires 14 November 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1048,12 +1048,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <dd class="internet-draft">draft-steele-spice-tlsa-cnf-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-05-11" class="published">11 May 2024</time>
+<time datetime="2024-05-13" class="published">13 May 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-11-12">12 November 2024</time></dd>
+<dd class="expires"><time datetime="2024-11-14">14 November 2024</time></dd>
 <dt class="label-authors">Author:</dt>
 <dd class="authors">
 <div class="author">
@@ -1106,7 +1106,7 @@ This approach can be leveraged to develop revocation and assurance capabilities 
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 12 November 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 14 November 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -1251,7 +1251,7 @@ TLSA Resource Record and related terminology are described in <span>[<a href="#R
 <pre>
 {
   "iss": "https://iss.example",
-  "sub": "https://jwt.vc",
+  "sub": "https://vendor.example",
   "exp": 1361398824,
   "cnf": {
     "jwk":{
@@ -1281,7 +1281,7 @@ TLSA Resource Record and related terminology are described in <span>[<a href="#R
 <pre>
 {
   /iss/ 1 : "coaps://iss.example",
-  /sub/ 2 : "coaps://jwt.vc",
+  /sub/ 2 : "coaps://vendor.example",
   /exp/ 4 : 1361398824,
   /cnf/ 8 : {
     /COSE_Key/ 1 : h'deebd8afa...423da25ffff'
@@ -1341,7 +1341,7 @@ For JWE and Encrypted_COSE_Key, the key must be decrypted and then the process f
 <pre>
 {
   /iss/ 1 : "coaps://iss.example",
-  /sub/ 2 : "coaps://jwt.vc",
+  /sub/ 2 : "coaps://vendor.example",
   /cnf/ 8 : {
     /COSE_Key/ 1 : h'deebd8afa...423da25ffff'
   }
@@ -1356,7 +1356,7 @@ For JWE and Encrypted_COSE_Key, the key must be decrypted and then the process f
 <p id="section-4-10">Produces the following prefixed DNS domain name:<a href="#section-4-10" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4-11">
 <pre>
-1.8.jwt.vc
+_1_8.vendor.example
 </pre><a href="#section-4-11" class="pilcrow">¶</a>
 </div>
 <p id="section-4-12">The following command can be run to retrieve the confirmation claim record:<a href="#section-4-12" class="pilcrow">¶</a></p>
@@ -1364,7 +1364,7 @@ For JWE and Encrypted_COSE_Key, the key must be decrypted and then the process f
 <figure id="figure-4">
         <div class="alignLeft art-text artwork" id="section-4-13.1">
 <pre>
-dig @pam.ns.cloudflare.com. 1.8.jwt.vc. TLSA
+dig @pam.ns.cloudflare.com. _1_8.vendor.example. TLSA
 </pre>
 </div>
 <figcaption><a href="#figure-4" class="selfRef">Figure 4</a>:
@@ -1378,7 +1378,7 @@ dig @pam.ns.cloudflare.com. 1.8.jwt.vc. TLSA
 <pre>
 ;; ...
 ;; ANSWER SECTION:
-1.8.jwt.vc.    300  IN  TLSA  255 255 255 123533...66AAF8
+_1_8.vendor.example.    300  IN  TLSA  255 255 255 123533...66AAF8
 </pre>
 </div>
 <figcaption><a href="#figure-5" class="selfRef">Figure 5</a>:
@@ -1392,7 +1392,7 @@ dig @pam.ns.cloudflare.com. 1.8.jwt.vc. TLSA
 <pre>
 {
   "iss": "https://iss.example",
-  "sub": "https://jwt.vc",
+  "sub": "https://vendor.example",
   "exp": 1361398824,
   "cnf": {
     "jwk":{
@@ -1413,7 +1413,7 @@ dig @pam.ns.cloudflare.com. 1.8.jwt.vc. TLSA
 <p id="section-4-18">Produces the following prefixed DNS domain name:<a href="#section-4-18" class="pilcrow">¶</a></p>
 <div class="alignLeft art-text artwork" id="section-4-19">
 <pre>
-jwk.cnf.jwt.vc
+_jwk_cnf.vendor.example
 </pre><a href="#section-4-19" class="pilcrow">¶</a>
 </div>
 <p id="section-4-20">The following command can be run to retrieve the confirmation claim record:<a href="#section-4-20" class="pilcrow">¶</a></p>
@@ -1421,7 +1421,7 @@ jwk.cnf.jwt.vc
 <figure id="figure-7">
         <div class="alignLeft art-text artwork" id="section-4-21.1">
 <pre>
-dig @pam.ns.cloudflare.com. jwk.cnf.jwt.vc. TLSA
+dig @pam.ns.cloudflare.com. _jwk_cnf.vendor.example. TLSA
 </pre>
 </div>
 <figcaption><a href="#figure-7" class="selfRef">Figure 7</a>:
@@ -1435,7 +1435,7 @@ dig @pam.ns.cloudflare.com. jwk.cnf.jwt.vc. TLSA
 <pre>
 ;; ...
 ;; ANSWER SECTION:
-jwk.cnf.jwt.vc.    300  IN  TLSA  255 255 255 12353...6AAF8
+_jwk_cnf.vendor.example.    300  IN  TLSA  255 255 255 12353...6AAF8
 </pre>
 </div>
 <figcaption><a href="#figure-8" class="selfRef">Figure 8</a>:
@@ -1564,7 +1564,7 @@ Prior to the issuance or digital credentials it is essential that the issuer obt
       <h2 id="name-implementation-status">
 <a href="#section-10" class="section-number selfRef">10. </a><a href="#name-implementation-status" class="section-name selfRef">Implementation Status</a>
       </h2>
-<p id="section-10-1">Note to RFC Editor: Please remove this section as well as references to <span>[<a href="#BCP205" class="cite xref">BCP205</a>]</span> before AUTH48, and then find replace "jwt.vc" with "vendor.example".<a href="#section-10-1" class="pilcrow">¶</a></p>
+<p id="section-10-1">Note to RFC Editor: Please remove this section as well as references to <span>[<a href="#BCP205" class="cite xref">BCP205</a>]</span> before AUTH48.<a href="#section-10-1" class="pilcrow">¶</a></p>
 <p id="section-10-2">This section records the status of known implementations of the protocol defined by this specification at the time of posting of this Internet-Draft, and is based on a proposal described in <span>[<a href="#BCP205" class="cite xref">BCP205</a>]</span>.
 The description of implementations in this section is intended to assist the IETF in its decision processes in progressing drafts to RFCs.
 Please note that the listing of any individual implementation here does not imply endorsement by the IETF.
