@@ -52,9 +52,16 @@ informative:
   I-D.draft-ietf-oauth-sd-jwt-vc: SD-JWT-VC
   I-D.draft-prorock-spice-cose-sd-cwt: SD-CWT
 
+
   UTS46:
     title: UTS46
     target: https://www.unicode.org/reports/tr46/
+
+
+  I-D.draft-haberman-digital-emblem-ps: Digital-Emblem-Problem-Statement
+  ADEM:
+    title: An Authenticated Digital EMblem - Core Specification
+    target: https://adem-wg.github.io/adem-spec/draft-adem-wg-adem-core.html
 
 
 --- abstract
@@ -187,7 +194,7 @@ _1_8.vendor.example
 The following command can be run to retrieve the confirmation claim record:
 
 ~~~
-dig @pam.ns.cloudflare.com. _1_8.vendor.example. TLSA
+dig server.ns.vendor.example. _1_8.vendor.example. TLSA
 ~~~
 {: #fig-cose-tlsa-cnf-example-1-query title="Example cnf query"}
 
@@ -229,7 +236,7 @@ _jwk_cnf.vendor.example
 The following command can be run to retrieve the confirmation claim record:
 
 ~~~
-dig @pam.ns.cloudflare.com. _jwk_cnf.vendor.example. TLSA
+dig server.ns.vendor.example. _jwk_cnf.vendor.example. TLSA
 ~~~
 {: #fig-jose-tlsa-cnf-example-1-query title="Example cnf query"}
 
@@ -246,11 +253,17 @@ In both of the preceeding examples, the claimset contained a key, but the tlsa c
 
 In order to match the claimset confirmation method to the hash retrieved from the cnf record, the process described in Section 1 MUST be followed.
 
+Section 5 of {{-ADEM}} describes a mechanism for embedding a key identifier in certificate logs which enables several useful properties for digital credentials.
+In particular, the organization identifiers associated with a digitial emblem can be discovered through distribution of certificate transparency logs.
+This approach could be extended to feeds of related credential information, by replacing the key identifier with a merkle root for another transparency system.
+Enabling the holder of a digital emblem to disclose several credentials, potentially with distinct trust chains, which can be useful in cross border scenarios.
+Future work from the IETF SCITT or KEY TRANS working groups could provide useful building blocks for extending Certificate Transparency based discoverability of digital credentials.
+
 TODO: Consider merkle root instead of single key thumbprint, confirm multiple keys with a single record.
 
-TODO: Consider BBS / accumulator alternatives to set membership with merkle proofs.
-
 TODO: Consider relationship to Key Transparency, Metadata & Capability Discovery, Certificate Transparency.
+
+TODO: Consider BBS / accumulator alternatives to set membership with merkle proofs.
 
 # Usage
 
@@ -301,6 +314,14 @@ This section builds on the Before Isssunace process described above, and applies
 In this case, the DNS enables the subject to publish and unpublish the thumbprint of the public key they wish to use for digital credentials on the associated domain.
 
 This approach could be extended to other protocols, and is inspired by similar approaches to demonstrating control of resources or proving possession for example Automated Certificate Management Environment (acme) and DNS-Based Authentication of Named Entities (DANE).
+
+## Digital Emblems
+
+One use case for confirming credentials via DNS is enabling digital emblems or badges.
+{{-Digital-Emblem-Problem-Statement}} describes the challenge of recognizing if a person, organization, vehicle, or asset is recognized or protected under international laws.
+{{-ADEM}} proposes a JSON Web Token based solution to this challenge similar to the approach described in this draft.
+Using confirmation methods with digital emblems can help protect them against forgery or theft, by requiring an attacker to gain control of both the digital infrastructure where the emblem is published and any cryptographic key material associated with the confirmation method for the credential.
+This specification currently extends the TLSA record for digital credential use cases, however it is possible that more fit for purpose DNS Resource Record (RR) types might be created to support digitial emblems in the future.
 
 # Privacy Considerations
 
