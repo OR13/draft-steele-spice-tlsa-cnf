@@ -4,8 +4,8 @@
 
 Secure Patterns for Internet CrEdentials                       O. Steele
 Internet-Draft                                                 Transmute
-Intended status: Informational                               13 May 2024
-Expires: 14 November 2024
+Intended status: Informational                               9 June 2024
+Expires: 11 December 2024
 
 
                     Credential Confirmation with DNS
@@ -57,7 +57,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 14 November 2024.
+   This Internet-Draft will expire on 11 December 2024.
 
 Copyright Notice
 
@@ -85,6 +85,7 @@ Table of Contents
      5.2.  After Verification
      5.3.  Revocation
      5.4.  Assurance
+     5.5.  Digital Emblems
    6.  Privacy Considerations
    7.  Security Considerations
    8.  Internationalization Considerations
@@ -251,7 +252,7 @@ Table of Contents
    The following command can be run to retrieve the confirmation claim
    record:
 
-   dig @pam.ns.cloudflare.com. _1_8.vendor.example. TLSA
+   dig server.ns.vendor.example. _1_8.vendor.example. TLSA
 
                         Figure 4: Example cnf query
 
@@ -289,7 +290,7 @@ Table of Contents
    The following command can be run to retrieve the confirmation claim
    record:
 
-   dig @pam.ns.cloudflare.com. _jwk_cnf.vendor.example. TLSA
+   dig server.ns.vendor.example. _jwk_cnf.vendor.example. TLSA
 
                         Figure 7: Example cnf query
 
@@ -308,14 +309,28 @@ Table of Contents
    retrieved from the cnf record, the process described in Section 1
    MUST be followed.
 
+   Section 5 of [ADEM] describes a mechanism for embedding a key
+   identifier in certificate logs which enables several useful
+   properties for digital credentials.  In particular, the organization
+   identifiers associated with a digitial emblem can be discovered
+   through distribution of certificate transparency logs.  This approach
+   could be extended to feeds of related credential information, by
+   replacing the key identifier with a merkle root for another
+   transparency system.  Enabling the holder of a digital emblem to
+   disclose several credentials, potentially with distinct trust chains,
+   which can be useful in cross border scenarios.  Future work from the
+   IETF SCITT or KEY TRANS working groups could provide useful building
+   blocks for extending Certificate Transparency based discoverability
+   of digital credentials.
+
    TODO: Consider merkle root instead of single key thumbprint, confirm
    multiple keys with a single record.
 
-   TODO: Consider BBS / accumulator alternatives to set membership with
-   merkle proofs.
-
    TODO: Consider relationship to Key Transparency, Metadata &
    Capability Discovery, Certificate Transparency.
+
+   TODO: Consider BBS / accumulator alternatives to set membership with
+   merkle proofs.
 
 5.  Usage
 
@@ -409,6 +424,23 @@ Table of Contents
    proving possession for example Automated Certificate Management
    Environment (acme) and DNS-Based Authentication of Named Entities
    (DANE).
+
+5.5.  Digital Emblems
+
+   One use case for confirming credentials via DNS is enabling digital
+   emblems or badges.  [I-D.draft-haberman-digital-emblem-ps] describes
+   the challenge of recognizing if a person, organization, vehicle, or
+   asset is recognized or protected under international laws.  [ADEM]
+   proposes a JSON Web Token based solution to this challenge similar to
+   the approach described in this draft.  Using confirmation methods
+   with digital emblems can help protect them against forgery or theft,
+   by requiring an attacker to gain control of both the digital
+   infrastructure where the emblem is published and any cryptographic
+   key material associated with the confirmation method for the
+   credential.  This specification currently extends the TLSA record for
+   digital credential use cases, however it is possible that more fit
+   for purpose DNS Resource Record (RR) types might be created to
+   support digitial emblems in the future.
 
 6.  Privacy Considerations
 
@@ -574,6 +606,10 @@ Normative References
 
 Informative References
 
+   [ADEM]     "An Authenticated Digital EMblem - Core Specification",
+              n.d., <https://adem-wg.github.io/adem-spec/draft-adem-wg-
+              adem-core.html>.
+
    [BCP205]   Best Current Practice 205,
               <https://www.rfc-editor.org/info/bcp205>.
               At the time of writing, this BCP comprises the following:
@@ -593,24 +629,30 @@ Informative References
    [I-D.draft-carter-high-assurance-dids-with-dns]
               Carter, J., Latour, J., Glaude, M., and T. Bouma, "High
               Assurance DIDs with DNS", Work in Progress, Internet-
-              Draft, draft-carter-high-assurance-dids-with-dns-03, 9
-              April 2024, <https://datatracker.ietf.org/doc/html/draft-
-              carter-high-assurance-dids-with-dns-03>.
+              Draft, draft-carter-high-assurance-dids-with-dns-04, 23
+              May 2024, <https://datatracker.ietf.org/doc/html/draft-
+              carter-high-assurance-dids-with-dns-04>.
+
+   [I-D.draft-haberman-digital-emblem-ps]
+              Haberman, B., Jensen, T., and B. Woodcock, "Problem
+              Statement for Digitized Emblems", Work in Progress,
+              Internet-Draft, draft-haberman-digital-emblem-ps-02, 21
+              May 2024, <https://datatracker.ietf.org/doc/html/draft-
+              haberman-digital-emblem-ps-02>.
 
    [I-D.draft-ietf-cbor-edn-literals]
               Bormann, C., "CBOR Extended Diagnostic Notation (EDN):
               Application-Oriented Literals, ABNF, and Media Type", Work
               in Progress, Internet-Draft, draft-ietf-cbor-edn-literals-
-              08, 1 February 2024,
-              <https://datatracker.ietf.org/doc/html/draft-ietf-cbor-
-              edn-literals-08>.
+              09, 18 May 2024, <https://datatracker.ietf.org/doc/html/
+              draft-ietf-cbor-edn-literals-09>.
 
    [I-D.draft-ietf-oauth-attestation-based-client-auth]
               Looker, T. and P. Bastian, "OAuth 2.0 Attestation-Based
               Client Authentication", Work in Progress, Internet-Draft,
-              draft-ietf-oauth-attestation-based-client-auth-02, 21
-              April 2024, <https://datatracker.ietf.org/doc/html/draft-
-              ietf-oauth-attestation-based-client-auth-02>.
+              draft-ietf-oauth-attestation-based-client-auth-03, 31 May
+              2024, <https://datatracker.ietf.org/doc/html/draft-ietf-
+              oauth-attestation-based-client-auth-03>.
 
    [I-D.draft-ietf-oauth-sd-jwt-vc]
               Terbu, O., Fett, D., and B. Campbell, "SD-JWT-based
