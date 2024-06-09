@@ -259,6 +259,7 @@ This approach could be extended to feeds of related credential information, by r
 Enabling the holder of a digital emblem to disclose several credentials, potentially with distinct trust chains, which can be useful in cross border scenarios.
 Future work from the IETF SCITT or KEY TRANS working groups could provide useful building blocks for extending Certificate Transparency based discoverability of digital credentials.
 
+
 TODO: Consider merkle root instead of single key thumbprint, confirm multiple keys with a single record.
 
 TODO: Consider relationship to Key Transparency, Metadata & Capability Discovery, Certificate Transparency.
